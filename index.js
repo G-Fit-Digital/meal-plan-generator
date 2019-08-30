@@ -26,7 +26,7 @@ mongoose
   .then(() => {
     request(options, function(error, response, body) {
       if (error) throw new Error(error);
-      let token = body.access_token;
+      token = body.access_token;
     });
   })
   .catch(err => {
@@ -35,6 +35,19 @@ mongoose
 app.use(express.json());
 app.get("/", async (req, res) => {
   res.send("GFIT SERVER RUNNING");
+});
+app.get("/bananas", async (req, res) => {
+  axios
+    .get(
+      `https://api.edamam.com/api/food-database/parser?ingr=chicken&app_id=2097ad97&app_key=36761b375e99e5d91bacf51798ffe0c2`
+    )
+    .then(response => {
+      res.send(response.data.hints[0]);
+      console.log(response.data);
+    })
+    .catch(err => {
+      console.log(err);
+    });
 });
 app.listen(3000, () => {
   console.log("App Running On Port 3000");
