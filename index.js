@@ -2,33 +2,10 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const axios = require("axios");
-var request = require("request");
 
-var options = {
-  method: "POST",
-  url: "https://oauth.fatsecret.com/connect/token",
-  method: "POST",
-  auth: {
-    user: "d54eb23a23424e41a0ad006dd1894d6e",
-    password: "a48334524e7845b0820a3842a2ddbca4"
-  },
-  headers: { "content-type": "application/json" },
-  form: {
-    grant_type: "client_credentials",
-    scope: "basic"
-  },
-  json: true
-};
-let token = "";
 mongoose
   .connect("mongodb://localhost/gfit")
   .then(() => console.log("Connected to MongoDB"))
-  .then(() => {
-    request(options, function(error, response, body) {
-      if (error) throw new Error(error);
-      token = body.access_token;
-    });
-  })
   .catch(err => {
     console.log("Not Connecting", err);
   });
@@ -36,17 +13,33 @@ app.use(express.json());
 app.get("/", async (req, res) => {
   res.send("GFIT SERVER RUNNING");
 });
-app.get("/bananas", async (req, res) => {
+app.get(`/search/:query`, async (req, res) => {
   axios
     .get(
-      `https://api.edamam.com/api/food-database/parser?ingr=chicken&app_id=2097ad97&app_key=36761b375e99e5d91bacf51798ffe0c2`
+      `https://api.nal.usda.gov/ndb/search/?format=json&q=${req.params.query}&sort=r&max=100&offset=0&api_key=7gmRblmCoIbJpYoNpXJStU9jR99wHM78S973VXrz&ds=Standard%20Reference`
     )
     .then(response => {
-      res.send(response.data.hints[0]);
-      console.log(response.data);
+      res.send(response.data.list.item[0].ndbno);
+      // axios
+      //   .get(
+      //     `https://api.nal.usda.gov/ndb/reports/?ndbno=${response.data.list.item[0].ndbno}&type=s&format=json&api_key=7gmRblmCoIbJpYoNpXJStU9jR99wHM78S973VXrz`
+      //   )
+      //   .then(data => {
+      //     res.send(data.data);
+      //     console.log(data.data);
+      //   });
     })
     .catch(err => {
-      console.log(err);
+      console.log(err.message);
+    });
+});
+app.get("/select/:id", async (req, res) => {
+  axios
+    .get(
+      `https://api.nal.usda.gov/ndb/reports/?ndbno=${req.params.id}&type=b&format=json&api_key=7gmRblmCoIbJpYoNpXJStU9jR99wHM78S973VXrz`
+    )
+    .then(response => {
+      res.send(response.data);
     });
 });
 app.listen(3000, () => {
