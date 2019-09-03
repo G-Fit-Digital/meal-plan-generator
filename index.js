@@ -3,6 +3,7 @@ const app = express();
 const mongoose = require("mongoose");
 const axios = require("axios");
 var cors = require("cors");
+const item = require("./routes/item");
 
 mongoose
   .connect("mongodb://localhost/gfit")
@@ -12,6 +13,7 @@ mongoose
   });
 app.use(cors());
 app.use(express.json());
+app.use("/api/item", item);
 app.get("/", async (req, res) => {
   res.send("GFIT SERVER RUNNING");
 });
