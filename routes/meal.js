@@ -3,76 +3,82 @@ const router = express.Router();
 const { Item } = require("../models/item");
 const randomInteger = require("../utils");
 
-router.get("/", async (req, res) => {
-  let max_calories = 2535;
-  let min_protein = 233;
-  let min_carb = 220;
-  let min_fat = 80;
-  const items = await Item.find();
-  let filtered_breakfast = items.filter(function(item) {
-    return (
-      item.meal_category[0].includes("Breakfast") &&
-      !item.food_category[0].includes("Condiments")
-    );
-  });
-  let filtered_lunch = items.filter(function(item) {
-    return item.meal_category[0].includes("Lunch");
-  });
-  let filtered_dinner = items.filter(function(item) {
-    return item.meal_category[0].includes("Dinner");
-  });
-  let filtered_snack = items.filter(function(item) {
-    return item.meal_category[0].includes("Snack");
-  });
-  function generate_meal(meal_items, restrictions) {
-    if (restrictions) {
-      for (var i = 0; i < restrictions.length; i++) {
-        meal_items = meal_items.filter(function(item) {
-          return !item.dietary_restrictions[0].includes(
-            restrictions[i].substring(0, 1).toUpperCase() +
-              restrictions[i].substring(1)
-          );
-        });
-      }
-    }
-    let breakfast_calories = max_calories * 0.3;
-    let breakfast_protein = min_protein * 0.3;
-    let breakfast_carbs = min_carb * 0.3;
-    let breakfast_fat = min_fat * 0.3;
-    let calories = 0;
-    let protein = 0;
-    let carbs = 0;
-    let fat = 0;
-    let items = [];
-    while (calories < breakfast_calories * 0.95) {
-      let random = randomInteger(meal_items.length);
-      let randomItem = meal_items[random];
-      if (
-        protein + randomItem.protein < breakfast_protein &&
-        carbs + randomItem.carbs < breakfast_carbs &&
-        fat + randomItem.fat < breakfast_fat
-      ) {
-        items.push(randomItem);
-        calories += meal_items[random].calories;
-        protein += meal_items[random].protein;
-        carbs += meal_items[random].carbs;
-        fat += meal_items[random].fat;
-      } else {
-        if (items.length > 2) {
-          calories = calories - items[0].calories;
-          protein = protein - items[0].protein;
-          carbs = carbs - items[0].carbs;
-          fat = fat - items[0].fat;
-          items.splice(0, 1);
+router.get(
+  `/calories/:calories/protein/:protein/carb/:carb/fat/:fat`,
+  async (req, res) => {
+    let max_calories = req.params.calories;
+    let min_protein = req.params.protein;
+    let min_carb = req.params.carb;
+    let min_fat = req.params.fat;
+    const items = await Item.find();
+    let filtered_breakfast = items.filter(function(item) {
+      return (
+        item.meal_category[0].includes("Breakfast") &&
+        !item.food_category[0].includes("Condiments")
+      );
+    });
+    let filtered_lunch = items.filter(function(item) {
+      return item.meal_category[0].includes("Lunch");
+    });
+    let filtered_dinner = items.filter(function(item) {
+      return item.meal_category[0].includes("Dinner");
+    });
+    let filtered_snack = items.filter(function(item) {
+      return item.meal_category[0].includes("Snack");
+    });
+    function generate_meal(meal_items, restrictions) {
+      if (restrictions) {
+        for (var i = 0; i < restrictions.length; i++) {
+          meal_items = meal_items.filter(function(item) {
+            return !item.dietary_restrictions[0].includes(
+              restrictions[i].substring(0, 1).toUpperCase() +
+                restrictions[i].substring(1)
+            );
+          });
         }
       }
+      let breakfast_calories = max_calories * 0.3;
+      let breakfast_protein = min_protein * 0.3;
+      let breakfast_carbs = min_carb * 0.3;
+      let breakfast_fat = min_fat * 0.3;
+      let calories = 0;
+      let protein = 0;
+      let carbs = 0;
+      let fat = 0;
+      let items = [];
+      let count = 0;
+      while (calories < breakfast_calories * 0.85) {
+        let random = randomInteger(meal_items.length);
+        let randomItem = meal_items[random];
+        if (
+          protein + randomItem.protein < breakfast_protein &&
+          carbs + randomItem.carbs < breakfast_carbs &&
+          fat + randomItem.fat < breakfast_fat
+        ) {
+          items.push(randomItem);
+          calories += meal_items[random].calories;
+          protein += meal_items[random].protein;
+          carbs += meal_items[random].carbs;
+          fat += meal_items[random].fat;
+        } else {
+          if (items.length > 2) {
+            calories = calories - items[0].calories;
+            protein = protein - items[0].protein;
+            carbs = carbs - items[0].carbs;
+            fat = fat - items[0].fat;
+            items.splice(0, 1);
+          }
+        }
+        count++;
+        console.log(calories, protein, carbs, fat, count);
+      }
+      return { items, protein, calories, carbs, fat };
     }
-    return { items, protein, calories, carbs, fat };
+    randomBreakfast = generate_meal(filtered_breakfast, ["vegan"]);
+    res.send({
+      breakfast: randomBreakfast,
+    });
   }
-  randomBreakfast = generate_meal(filtered_breakfast, ["vegan"]);
-  res.send({
-    breakfast: randomBreakfast,
-  });
-});
+);
 
 module.exports = router;
