@@ -3,60 +3,50 @@ const mongoose = require("mongoose");
 const ItemSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
-    default: null
+    default: null,
   },
   meal_category: [
     {
       type: String,
-      required: true,
-      default: null
-    }
+      default: null,
+    },
   ],
   food_category: [
     {
       type: String,
-      required: true,
-      default: null
-    }
+      default: null,
+    },
   ],
   dietary_restrictions: [
     {
       type: String,
-      required: true,
-      default: null
-    }
+      default: null,
+    },
   ],
   portion_in_grams: {
     type: Number,
-    required: true,
-    default: null
+    default: null,
   },
   protein: {
     type: Number,
-    required: true,
-    default: null
+    default: null,
   },
   fat: {
     type: Number,
-    required: true,
-    default: null
+    default: null,
   },
   carbs: {
     type: Number,
-    required: true,
-    default: null
+    default: null,
   },
   calories: {
     type: Number,
-    required: true,
-    default: null
+    default: null,
   },
   fibre: {
     type: Number,
-    required: true,
-    default: null
-  }
+    default: null,
+  },
 });
 const Item = mongoose.model("Item", ItemSchema);
 exports.Item = Item;

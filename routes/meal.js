@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 const { Item } = require("../models/item");
 const randomInteger = require("../utils");
+const { Meal } = require("../models/meal");
 
-router.get(
+router.post(
   `/calories/:calories/protein/:protein/carb/:carb/fat/:fat`,
   async (req, res) => {
     let max_calories = req.params.calories;
@@ -26,8 +27,9 @@ router.get(
     let filtered_snack = items.filter(function(item) {
       return item.meal_category[0].includes("Snack");
     });
-    function generate_meal(meal_items, restrictions) {
+    function generate_meal(meal_items, restrictions, meal) {
       if (restrictions) {
+        console.log(restrictions);
         for (var i = 0; i < restrictions.length; i++) {
           meal_items = meal_items.filter(function(item) {
             return !item.dietary_restrictions[0].includes(
@@ -70,14 +72,24 @@ router.get(
           }
         }
         count++;
-        console.log(calories, protein, carbs, fat, count);
       }
-      return { items, protein, calories, carbs, fat };
+      return {
+        items,
+        protein,
+        calories,
+        carbs,
+        fat,
+        meal,
+      };
     }
-    randomBreakfast = generate_meal(filtered_breakfast, ["vegan"]);
-    res.send({
-      breakfast: randomBreakfast,
-    });
+    randomBreakfast = generate_meal(
+      filtered_breakfast,
+      req.body.restrictions,
+      "breakfast"
+    );
+    let menu = new Meal(randomBreakfast);
+    await menu.save();
+    res.send([menu]);
   }
 );
 
