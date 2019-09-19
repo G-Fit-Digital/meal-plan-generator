@@ -82,15 +82,38 @@ router.post(
         meal,
       };
     }
-    randomBreakfast = generate_meal(
+    let randomBreakfast = generate_meal(
       filtered_breakfast,
       req.body.restrictions,
       "breakfast"
     );
-    let menu = new Meal(randomBreakfast);
+    let randomLunch = generate_meal(
+      filtered_lunch,
+      req.body.restrictions,
+      "lunch"
+    );
+    let randomSnack = generate_meal(
+      filtered_snack,
+      req.body.restrictions,
+      "lunch"
+    );
+    let randomDinner = generate_meal(
+      filtered_dinner,
+      req.body.restrictions,
+      "dinner"
+    );
+    let menu = new Meal({
+      meal: [randomBreakfast, randomLunch, randomSnack, randomDinner],
+    });
     await menu.save();
-    res.send([menu]);
+    res.send(menu);
   }
 );
+
+router.get("/:id", async (req, res) => {
+  let meal = await Meal.findOne({ _id: req.params.id });
+  console.log(meal.meal);
+  res.send(meal);
+});
 
 module.exports = router;

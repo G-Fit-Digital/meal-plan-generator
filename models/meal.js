@@ -30,5 +30,9 @@ const MealSchema = new mongoose.Schema({
   },
 });
 
-const Meal = mongoose.model("Meal", MealSchema);
+const Meals = new mongoose.Schema({
+  meal: [MealSchema],
+});
+
+const Meal = mongoose.model("Meal", Meals);
 exports.Meal = Meal;
