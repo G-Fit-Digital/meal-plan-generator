@@ -115,5 +115,17 @@ router.get("/:id", async (req, res) => {
   console.log(meal.meal);
   res.send(meal);
 });
+router.delete("/:id/meal/:meal/item/:item", async (req, res) => {
+  let meal = await Meal.findOne({ _id: req.params.id });
+  let curr = meal.meal.filter(
+    meal => meal._id.toString() === req.params.meal.toString()
+  );
+  let item = curr[0].items.findIndex(
+    item => item._id.toString() === req.params.item.toString()
+  );
+  curr[0].items.splice(item, 1);
+  await meal.save();
+  res.send(meal);
+});
 
 module.exports = router;
