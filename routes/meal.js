@@ -112,11 +112,11 @@ router.post(
 
 router.get("/:id", async (req, res) => {
   let meal = await Meal.findOne({ _id: req.params.id });
-  console.log(meal.meal);
   res.send(meal);
 });
 router.delete("/:id/meal/:meal/item/:item", async (req, res) => {
   let meal = await Meal.findOne({ _id: req.params.id });
+  let item_db = await Item.findOne({ _id: req.params.item });
   let curr = meal.meal.filter(
     meal => meal._id.toString() === req.params.meal.toString()
   );
@@ -124,6 +124,10 @@ router.delete("/:id/meal/:meal/item/:item", async (req, res) => {
     item => item._id.toString() === req.params.item.toString()
   );
   curr[0].items.splice(item, 1);
+  curr[0].calories -= item_db.calories;
+  curr[0].protein -= item_db.protein;
+  curr[0].carbs -= item_db.carbs;
+  curr[0].fat -= item_db.fat;
   await meal.save();
   res.send(meal);
 });
