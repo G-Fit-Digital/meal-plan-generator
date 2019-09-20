@@ -131,5 +131,19 @@ router.delete("/:id/meal/:meal/item/:item", async (req, res) => {
   await meal.save();
   res.send(meal);
 });
+router.post("/:id/meal/:meal/item/:item", async (req, res) => {
+  let meal = await Meal.findOne({ _id: req.params.id });
+  let item_db = await Item.findOne({ _id: req.params.item });
+  let curr = meal.meal.filter(
+    meal => meal._id.toString() === req.params.meal.toString()
+  );
+  curr[0].items.push(item_db);
+  curr[0].calories += item_db.calories;
+  curr[0].protein += item_db.protein;
+  curr[0].carbs += item_db.carbs;
+  curr[0].fat += item_db.fat;
+  await meal.save();
+  res.send(meal);
+});
 
 module.exports = router;
