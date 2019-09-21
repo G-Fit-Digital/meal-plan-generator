@@ -28,6 +28,26 @@ const MealSchema = new mongoose.Schema({
     required: false,
     default: 0,
   },
+  target_calories: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
+  target_protein: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
+  target_carbs: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
+  target_fat: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
 });
 
 const Meals = new mongoose.Schema({

@@ -29,7 +29,6 @@ router.post(
     });
     function generate_meal(meal_items, restrictions, meal) {
       if (restrictions) {
-        console.log(restrictions);
         for (var i = 0; i < restrictions.length; i++) {
           meal_items = meal_items.filter(function(item) {
             return !item.dietary_restrictions[0].includes(
@@ -80,31 +79,49 @@ router.post(
         carbs,
         fat,
         meal,
+        target_calories: breakfast_calories,
+        target_protein: breakfast_protein,
+        target_carbs: breakfast_carbs,
+        target_fat: breakfast_fat,
       };
     }
     let randomBreakfast = generate_meal(
       filtered_breakfast,
-      req.body.restrictions,
+      req.body.data.restrictions,
       "breakfast"
     );
     let randomLunch = generate_meal(
       filtered_lunch,
-      req.body.restrictions,
+      req.body.data.restrictions,
       "lunch"
     );
     let randomSnack = generate_meal(
       filtered_snack,
-      req.body.restrictions,
-      "lunch"
+      req.body.data.restrictions,
+      "snack"
     );
     let randomDinner = generate_meal(
       filtered_dinner,
-      req.body.restrictions,
+      req.body.data.restrictions,
       "dinner"
     );
-    let menu = new Meal({
-      meal: [randomBreakfast, randomLunch, randomSnack, randomDinner],
-    });
+    console.log(req.body.data);
+    let menu;
+    if (req.body.data.numberMeals === 1) {
+      menu = new Meal({
+        meal: [randomBreakfast, randomLunch, randomSnack, randomDinner],
+      });
+    } else if (req.body.numberMeals === 2) {
+      menu = new Meal({
+        meal: [
+          randomBreakfast,
+          randomSnack,
+          randomLunch,
+          randomSnack,
+          randomDinner,
+        ],
+      });
+    }
     await menu.save();
     res.send(menu);
   }
