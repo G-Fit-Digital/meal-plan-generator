@@ -52,6 +52,14 @@ const MealSchema = new mongoose.Schema({
 
 const Meals = new mongoose.Schema({
   meal: [MealSchema],
+  client_name: {
+    type: String,
+    required: false,
+  },
+  created_on: {
+    type: String,
+    required: false,
+  },
 });
 
 const Meal = mongoose.model("Meal", Meals);

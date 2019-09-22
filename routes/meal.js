@@ -100,26 +100,33 @@ router.post(
       req.body.data.restrictions,
       "snack"
     );
+    let secondSnack = generate_meal(
+      filtered_snack,
+      req.body.data.restrictions,
+      "snack"
+    );
     let randomDinner = generate_meal(
       filtered_dinner,
       req.body.data.restrictions,
       "dinner"
     );
-    console.log(req.body.data);
     let menu;
     if (req.body.data.numberMeals === 1) {
       menu = new Meal({
         meal: [randomBreakfast, randomLunch, randomSnack, randomDinner],
       });
-    } else if (req.body.numberMeals === 2) {
+    }
+    if (req.body.data.numberMeals === 2) {
       menu = new Meal({
         meal: [
           randomBreakfast,
           randomSnack,
           randomLunch,
-          randomSnack,
+          secondSnack,
           randomDinner,
         ],
+        client_name: req.body.data.client_name,
+        created_on: new Date(),
       });
     }
     await menu.save();
