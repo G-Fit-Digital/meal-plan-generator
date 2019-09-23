@@ -19,6 +19,7 @@ app.use("/api/meal", meal);
 app.get("/", async (req, res) => {
   res.send("GFIT SERVER RUNNING");
 });
+//Todo: Break these requests into their own routes
 app.get(`/search/:query`, async (req, res) => {
   axios
     .get(

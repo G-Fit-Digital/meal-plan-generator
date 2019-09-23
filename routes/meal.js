@@ -100,6 +100,7 @@ router.post(
       req.body.data.restrictions,
       "snack"
     );
+    //Todo: Better way to instantiate a second snack
     let secondSnack = generate_meal(
       filtered_snack,
       req.body.data.restrictions,
@@ -110,10 +111,24 @@ router.post(
       req.body.data.restrictions,
       "dinner"
     );
+    let thirdSnack = generate_meal(
+      filtered_snack,
+      req.body.data.restrictions,
+      "snack"
+    );
     let menu;
+    if (req.body.data.numberMeals === 0) {
+      menu = new Meal({
+        meal: [randomBreakfast, randomLunch, randomDinner],
+        client_name: req.body.data.client_name,
+        created_on: new Date(),
+      });
+    }
     if (req.body.data.numberMeals === 1) {
       menu = new Meal({
         meal: [randomBreakfast, randomLunch, randomSnack, randomDinner],
+        client_name: req.body.data.client_name,
+        created_on: new Date(),
       });
     }
     if (req.body.data.numberMeals === 2) {
@@ -124,6 +139,20 @@ router.post(
           randomLunch,
           secondSnack,
           randomDinner,
+        ],
+        client_name: req.body.data.client_name,
+        created_on: new Date(),
+      });
+    }
+    if (req.body.data.numberMeals === 2) {
+      menu = new Meal({
+        meal: [
+          randomBreakfast,
+          randomSnack,
+          randomLunch,
+          secondSnack,
+          randomDinner,
+          thirdSnack,
         ],
         client_name: req.body.data.client_name,
         created_on: new Date(),
@@ -167,6 +196,10 @@ router.post("/:id/meal/:meal/item/:item", async (req, res) => {
   curr[0].carbs += item_db.carbs;
   curr[0].fat += item_db.fat;
   await meal.save();
+  res.send(meal);
+});
+router.get("/", async (req, res) => {
+  let meal = await Meal.find();
   res.send(meal);
 });
 
