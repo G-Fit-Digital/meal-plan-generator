@@ -1,16 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const { Item } = require("../models/item");
-const randomInteger = require("../utils");
+const randomInteger = require("../utils/utils");
 const { Meal } = require("../models/meal");
+const calculateMealCalories = require("../utils/calculateCalories");
+const calculateMealProtein = require("../utils/calculateProtein");
+const calculateCarbsAndFat = require("../utils/calculateCarbsAndFat");
 
 router.post(
   `/calories/:calories/protein/:protein/carb/:carb/fat/:fat`,
   async (req, res) => {
-    let max_calories = req.params.calories;
-    let min_protein = req.params.protein;
-    let min_carb = req.params.carb;
-    let min_fat = req.params.fat;
     const items = await Item.find();
     let filtered_breakfast = items.filter(function(item) {
       return (
@@ -38,16 +37,32 @@ router.post(
           });
         }
       }
-      let breakfast_calories = max_calories * 0.3;
-      let breakfast_protein = min_protein * 0.3;
-      let breakfast_carbs = min_carb * 0.3;
-      let breakfast_fat = min_fat * 0.3;
+      let breakfast_calories = calculateMealCalories(
+        req.body.data.weight,
+        req.body.data.numberMeals,
+        meal,
+        req.params.calories
+      );
+      let breakfast_protein = calculateMealProtein(
+        req.body.data.numberMeals,
+        meal,
+        req.params.protein
+      );
+      let breakfast_fat = calculateCarbsAndFat(
+        breakfast_calories,
+        breakfast_protein,
+        "fat"
+      );
+      let breakfast_carbs = calculateCarbsAndFat(
+        breakfast_calories,
+        breakfast_protein,
+        "carbs"
+      );
       let calories = 0;
       let protein = 0;
       let carbs = 0;
       let fat = 0;
       let items = [];
-      let count = 0;
       while (calories < breakfast_calories * 0.85) {
         let random = randomInteger(meal_items.length);
         let randomItem = meal_items[random];
@@ -70,7 +85,6 @@ router.post(
             items.splice(0, 1);
           }
         }
-        count++;
       }
       return {
         items,
@@ -144,7 +158,7 @@ router.post(
         created_on: new Date(),
       });
     }
-    if (req.body.data.numberMeals === 2) {
+    if (req.body.data.numberMeals === 3) {
       menu = new Meal({
         meal: [
           randomBreakfast,
