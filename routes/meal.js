@@ -27,6 +27,7 @@ router.post(
       return item.meal_category[0].includes("Snack");
     });
     function generate_meal(meal_items, restrictions, meal) {
+      let count = 0;
       if (restrictions) {
         for (var i = 0; i < restrictions.length; i++) {
           meal_items = meal_items.filter(function(item) {
@@ -64,6 +65,7 @@ router.post(
       let fat = 0;
       let items = [];
       while (calories < breakfast_calories * 0.85) {
+        count++;
         let random = randomInteger(meal_items.length);
         let randomItem = meal_items[random];
         if (
@@ -83,6 +85,9 @@ router.post(
             carbs = carbs - items[0].carbs;
             fat = fat - items[0].fat;
             items.splice(0, 1);
+          }
+          if (count > 100000) {
+            break;
           }
         }
       }
